@@ -43,9 +43,34 @@ namespace CricketTorunment
 
 
             }
-
         }
 
+        public void CreateMatchesTable()
+        {
+            using (SqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "create table Matches(Id int primary key,Name varchar(255) not null,tournment_id int not null,team1_id int not null,team2_id int not null," +
+                    "foreign key(tournment_id) REFERENCES Tournments(Id)," +
+                    "foreign key(team1_id) REFERENCES Teams(Id)," +
+                    "foreign key(team2_id) REFERENCES Teams(Id)" +
+                    "on delete cascade);";
+                command.ExecuteNonQuery();
+                Console.WriteLine("Matchess Table created");
+            }
+        }
+
+        public void createScoreBoardTable()
+        {
+            using (SqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "create table ScoreBoard(Id int primary key,Name varchar(255) not null,ScoreTeam1 int not null,ScoreTeam2 int not null,Win varchar(255),tournment_id int not null,match_id int not null," +
+                    "foreign key(tournment_id) REFERENCES Tournments(Id)," +
+                    "foreign key(match_id) REFERENCES Matches(Id)" +
+                    "on delete cascade);";
+                command.ExecuteNonQuery();
+                Console.WriteLine("ScoreBoard Table created");
+            }
+        }
         public void CreatePlayersTable() 
         {
            using(SqlCommand command = connection.CreateCommand())
@@ -69,8 +94,10 @@ namespace CricketTorunment
             c.connection.Open();
             //c.createSportsTable();
             //c.CreateTournmentsTable();
-            c.CreateTeamsTable();
-            c.CreatePlayersTable();
+            //c.CreateTeamsTable();
+            //c.CreatePlayersTable();
+            //c.CreateMatchesTable();
+            c.createScoreBoardTable();
             c.connection.Close();
 
         }
