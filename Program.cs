@@ -14,6 +14,7 @@ namespace CricketTorunment
             {
                 command.CommandText = "create table Sports(Id int primary key,Name varchar(255) not null);";
                 command.ExecuteNonQuery();
+                Console.WriteLine("Sports Table created");
             }
 
 
