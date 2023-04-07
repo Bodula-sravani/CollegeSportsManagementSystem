@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Reflection.PortableExecutable;
+using System.Security.Cryptography.X509Certificates;
 
 namespace CricketTorunment
 {
@@ -103,6 +104,11 @@ namespace CricketTorunment
                 command.ExecuteNonQuery();
             }
 
+
+        }
+
+        public void ViewSports()
+        {
             using (SqlCommand command = connection.CreateCommand())
             {
                 command.CommandText = $"select * from Sports";
@@ -117,6 +123,31 @@ namespace CricketTorunment
                 }
                 reader.Close();
                 command.ExecuteReader().Close();
+            }
+        }
+
+        public void AddTournment()
+        {
+            Console.WriteLine("Here are the available sports");
+            ViewSports();
+            Console.WriteLine();
+            Console.WriteLine("Enter the id of tournment");
+            int id = Convert.ToInt32(Console.ReadLine().Trim());
+            Console.WriteLine("Enter the tournament name:");
+            string tournamentName = Console.ReadLine();
+            Console.WriteLine("Enter the sport ID for this tournament:");
+            int sportID = Convert.ToInt32(Console.ReadLine());
+            try
+            {
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = $"insert into Tournments values({id},'{tournamentName}',{sportID})";
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch(SqlException e)
+            {
+                Console.WriteLine("Error: " + e.Message);
             }
         }
 
@@ -160,7 +191,13 @@ namespace CricketTorunment
                         Console.WriteLine("Sport added successfully!");
                         break;
 
-                    
+                    case 2:
+                        c.AddTournment();
+                        Console.WriteLine("Tournament added successfully!");
+                        break;
+
+                        
+
                 }
 
             } while (choice != 15);
