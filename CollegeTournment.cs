@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using System.Reflection.Metadata.Ecma335;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
@@ -77,12 +78,26 @@ namespace CollegeTorunments
                 Console.WriteLine("ScoreBoard Table created");
             }
         }
+
+        public void createRegistrationTable()
+        {
+            using (SqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "create table Registration(Id int identity,player_id int not null,tournment_id int not null,sports_id int not null, " +
+                    "foreign key(tournment_id) REFERENCES Tournments(Id)," +
+                    "foreign key(sports_id) REFERENCES Sports(Id)," +
+                    "foreign key(player_id) references Players(Id)," +
+                    "primary key(Id))";
+                command.ExecuteNonQuery();
+                Console.WriteLine("Registration Table created");
+            }
+        }
         public void CreatePlayersTable() 
         {
             
            using(SqlCommand command = connection.CreateCommand())
             {
-                command.CommandText = "create table Players(Id int primary key,Name varchar(255) not null,team_id int not null," +
+                command.CommandText = "create table Players(Id int  primary key,Name varchar(255) not null,team_id int not null," +
                     "foreign key(team_id) REFERENCES Teams(Id)" +
                     "on delete cascade);";
                 command.ExecuteNonQuery();
@@ -191,29 +206,36 @@ namespace CollegeTorunments
             }
         }
 
-        public bool AddPlayer()
+        public int AddPlayer()
         {
-            // Inserts data into Players Table
+            // Inserts a player into Players Table and returns his/her id to continue registration
             Console.WriteLine();
             Console.WriteLine("Enter the id of player");
             int id = Convert.ToInt32(Console.ReadLine().Trim());
             Console.WriteLine("Enter the player name:");
             string playerName = Console.ReadLine();
-            Console.WriteLine("Enter the team ID for this player:");
-            int teamID = Convert.ToInt32(Console.ReadLine());
+            string commandTxt = "";
+            Console.WriteLine("Do you want to be a team player or individual? true-team false-individual)");
+            if (Convert.ToBoolean(Console.ReadLine().Trim()))
+            {
+                Console.WriteLine("Enter the team ID for this player:");
+                int teamID = Convert.ToInt32(Console.ReadLine());
+                commandTxt = $"insert into Players values({id},'{playerName}',{teamID})";
+            }
+            else commandTxt = $"insert into Players(Id,Name) values({id},'{playerName}')";
             try
             {
                 using (SqlCommand command = connection.CreateCommand())
                 {
-                    command.CommandText = $"insert into Players values({id},'{playerName}',{teamID})";
+                    command.CommandText = commandTxt;
                     command.ExecuteNonQuery();
-                    return true;
+                    return id;
                 }
             }
             catch (SqlException e)
             {
                 Console.WriteLine("Error: " + e.Message);
-                return false;
+                return -1;
             }
         }
 
@@ -390,7 +412,35 @@ namespace CollegeTorunments
             }
             return false;               
             }
+        public bool Registration()
+        {
+            int playerId = AddPlayer();
+            if(playerId>0)
+            {
+                Console.WriteLine("Enter the tournment id ");
+                int tourid = Convert.ToInt32(Console.ReadLine().Trim());
+                Console.WriteLine("Enter the sports id ");
+                int sportsID = Convert.ToInt32(Console.ReadLine());
+                try
+                {
+                    using (SqlCommand command = connection.CreateCommand())
+                    {
+                        command.CommandText = $"insert into Registration values({playerId},{tourid},{sportsID},'Successful')";
+                        command.ExecuteNonQuery();
+                        return true;
+                    }
+                }
+                catch (SqlException e)
+                {
+                    Console.WriteLine("Error: " + e.Message);
+                    return false;
+                }
 
+            }
+
+            return true;
+
+        }
         static void Main(string[] args)
         {
             CollegeSportsManagementSystem c = new();
@@ -402,6 +452,7 @@ namespace CollegeTorunments
             //c.CreatePlayersTable();
             //c.CreateMatchesTable();
             //c.createScoreBoardTable();
+            c.createRegistrationTable();
             int choice;
             do
             {
@@ -412,7 +463,7 @@ namespace CollegeTorunments
                 Console.WriteLine("3. Remove a Sport");
                 Console.WriteLine("4. Add a Team");
                 Console.WriteLine("5. Remove a Team");
-                Console.WriteLine("6. Add a Player");
+                Console.WriteLine("6. Player Registeration");
                 Console.WriteLine("7. Remove a Player");
                 Console.WriteLine("8. Remove a Tournment");
                 Console.WriteLine("9. Add a match");
@@ -447,7 +498,7 @@ namespace CollegeTorunments
                             Console.WriteLine("Team removed successfully!");
                         break;
                     case 6:
-                        if (c.AddPlayer())
+                        if (c.Registration())
                             Console.WriteLine("Player added successfully!");
                         break;
                     case 7:
