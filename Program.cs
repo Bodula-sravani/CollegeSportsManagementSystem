@@ -1,4 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
+using System.Reflection.PortableExecutable;
+
 namespace CricketTorunment
 {
     internal class CollegeSportsManagementSystem
@@ -87,6 +89,39 @@ namespace CricketTorunment
         }
 
 
+
+        public void AddSports()
+        {
+            Console.WriteLine("Enter the id of sports");
+            int id = Convert.ToInt32(Console.ReadLine().Trim());
+            Console.WriteLine("Enter the sport name:");
+            string sportName = Console.ReadLine();
+
+            using (SqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = $"insert into Sports values({id},'{sportName}')";
+                command.ExecuteNonQuery();
+            }
+
+            using (SqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = $"select * from Sports";
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    for (int j = 0; j < reader.FieldCount; j++)
+                    {
+                        Console.Write(reader[j] + " ");
+                    }
+                    Console.WriteLine();
+                }
+                reader.Close();
+                command.ExecuteReader().Close();
+            }
+        }
+
+       
+
         static void Main(string[] args)
         {
             CollegeSportsManagementSystem c = new();
@@ -97,8 +132,60 @@ namespace CricketTorunment
             //c.CreateTeamsTable();
             //c.CreatePlayersTable();
             //c.CreateMatchesTable();
-            c.createScoreBoardTable();
-            c.connection.Close();
+            //c.createScoreBoardTable();
+            int choice;
+            do
+            {
+                Console.WriteLine("Welcome to the College Sports Management System!");
+                Console.WriteLine("1. Add Sport");
+                Console.WriteLine("2. Add Tournament");
+                Console.WriteLine("3. Add Team");
+                Console.WriteLine("4. Add Player");
+                Console.WriteLine("5. Add Match");
+                Console.WriteLine("6. Add Scoreboard");
+                Console.WriteLine("7. Remove Sport");
+                Console.WriteLine("8. Remove Tournament");
+                Console.WriteLine("9. Remove Team");
+                Console.WriteLine("10. Remove Player");
+                Console.WriteLine("11. Remove Match");
+                Console.WriteLine("12. Edit Scoreboard");
+                Console.WriteLine("15. To Quit");
+
+                choice = Convert.ToInt32(Console.ReadLine());
+
+                switch (choice)
+                {
+                    case 1:
+                        c.AddSports();
+                        Console.WriteLine("Sport added successfully!");
+                        break;
+
+                    
+                }
+
+            } while (choice != 15);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    c.connection.Close();
 
         }
     }
