@@ -151,7 +151,38 @@ namespace CricketTorunment
             }
         }
 
-       
+       public bool RemoveSport()
+        {
+            Console.WriteLine("Enter the sports id to be removed");
+            int id = Convert.ToInt32(Console.ReadLine().Trim());
+            try
+            {
+                
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = $"select count(*) from Sports where Id={id}";
+                    int count = (int)command.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        command.CommandText = $"delete from Sports where Id={id}";
+                        command.ExecuteNonQuery();
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Sports doesnt exist");
+                        return false;
+                    }
+
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+            }
+
+
+        }
 
         static void Main(string[] args)
         {
@@ -170,13 +201,13 @@ namespace CricketTorunment
                 Console.WriteLine("Welcome to the College Sports Management System!");
                 Console.WriteLine("1. Add Sport");
                 Console.WriteLine("2. Add Tournament");
-                Console.WriteLine("3. Add Team");
+                Console.WriteLine("3. Remove Sport");
                 Console.WriteLine("4. Add Player");
                 Console.WriteLine("5. Add Match");
                 Console.WriteLine("6. Add Scoreboard");
-                Console.WriteLine("7. Remove Sport");
+                Console.WriteLine("7. ");
                 Console.WriteLine("8. Remove Tournament");
-                Console.WriteLine("9. Remove Team");
+                Console.WriteLine("9. To view sports");
                 Console.WriteLine("10. Remove Player");
                 Console.WriteLine("11. Remove Match");
                 Console.WriteLine("12. Edit Scoreboard");
@@ -196,7 +227,15 @@ namespace CricketTorunment
                         Console.WriteLine("Tournament added successfully!");
                         break;
 
-                        
+                    case 3:
+                        if (c.RemoveSport())
+                        { Console.WriteLine("Sport removed successfully!"); }
+                        break;
+
+
+                    case 9:
+                        c.ViewSports();
+                        break;
 
                 }
 
