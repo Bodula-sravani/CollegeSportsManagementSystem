@@ -91,17 +91,26 @@ namespace CricketTorunment
 
 
 
-        public void AddSports()
+        public bool AddSports()
         {
             Console.WriteLine("Enter the id of sports");
             int id = Convert.ToInt32(Console.ReadLine().Trim());
             Console.WriteLine("Enter the sport name:");
             string sportName = Console.ReadLine();
 
-            using (SqlCommand command = connection.CreateCommand())
+            try
             {
-                command.CommandText = $"insert into Sports values({id},'{sportName}')";
-                command.ExecuteNonQuery();
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = $"insert into Sports values({id},'{sportName}')";
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch(SqlException e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+                return false;
             }
 
 
@@ -126,7 +135,7 @@ namespace CricketTorunment
             }
         }
 
-        public void AddTournment()
+        public bool AddTournment()
         {
             Console.WriteLine("Here are the available sports");
             ViewSports();
@@ -143,11 +152,13 @@ namespace CricketTorunment
                 {
                     command.CommandText = $"insert into Tournments values({id},'{tournamentName}',{sportID})";
                     command.ExecuteNonQuery();
+                    return true;
                 }
             }
             catch(SqlException e)
             {
                 Console.WriteLine("Error: " + e.Message);
+                return false;
             }
         }
 
@@ -171,7 +182,6 @@ namespace CricketTorunment
                     else
                     {
                         Console.WriteLine("Sports doesnt exist");
-                        return false;
                     }
 
                 }
@@ -179,10 +189,129 @@ namespace CricketTorunment
             catch (SqlException e)
             {
                 Console.WriteLine("Error: " + e.Message);
+               
             }
 
-
+            return false;
         }
+
+        public bool AddTeam()
+        {
+
+            Console.WriteLine();
+            Console.WriteLine("Enter the id of team");
+            int id = Convert.ToInt32(Console.ReadLine().Trim());
+            Console.WriteLine("Enter the player name:");
+            string teamName = Console.ReadLine();
+            Console.WriteLine("Enter the team ID for this player:");
+            int tournmentID = Convert.ToInt32(Console.ReadLine());
+            try
+            {
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = $"insert into Teams values({id},'{teamName}',{tournmentID})";
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+                return false;
+            }
+        }
+        public bool RemoveTeam()
+        {
+            Console.WriteLine("Enter the team id to be removed");
+            int id = Convert.ToInt32(Console.ReadLine().Trim());
+            try
+            {
+
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = $"select count(*) from Teams where Id={id}";
+                    int count = (int)command.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        command.CommandText = $"delete from Teams where Id={id}";
+                        command.ExecuteNonQuery();
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Player doesnt exist");
+                    }
+
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+
+            }
+            return false;
+        }
+
+        public bool AddPlayer()
+        {
+
+            Console.WriteLine();
+            Console.WriteLine("Enter the id of player");
+            int id = Convert.ToInt32(Console.ReadLine().Trim());
+            Console.WriteLine("Enter the player name:");
+            string playerName = Console.ReadLine();
+            Console.WriteLine("Enter the team ID for this player:");
+            int teamID = Convert.ToInt32(Console.ReadLine());
+            try
+            {
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = $"insert into Players values({id},'{playerName}',{teamID})";
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+                return false;
+            }
+        }
+        public bool RemovePlayer()
+        {
+            Console.WriteLine("Enter the player id to be removed");
+            int id = Convert.ToInt32(Console.ReadLine().Trim());
+            try
+            {
+
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = $"select count(*) from Players where Id={id}";
+                    int count = (int)command.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        command.CommandText = $"delete from Players where Id={id}";
+                        command.ExecuteNonQuery();
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Player doesnt exist");
+                    }
+
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+
+            }
+            return false;
+        }
+
+
+
+
 
         static void Main(string[] args)
         {
@@ -202,13 +331,15 @@ namespace CricketTorunment
                 Console.WriteLine("1. Add Sport");
                 Console.WriteLine("2. Add Tournament");
                 Console.WriteLine("3. Remove Sport");
-                Console.WriteLine("4. Add Player");
-                Console.WriteLine("5. Add Match");
+                Console.WriteLine("4. Add Team");
+                Console.WriteLine("5. Remove Team");
+                Console.WriteLine("6. Add Player");
+                Console.WriteLine("7. Remove Player");
                 Console.WriteLine("6. Add Scoreboard");
                 Console.WriteLine("7. ");
                 Console.WriteLine("8. Remove Tournament");
                 Console.WriteLine("9. To view sports");
-                Console.WriteLine("10. Remove Player");
+                Console.WriteLine("10. ");
                 Console.WriteLine("11. Remove Match");
                 Console.WriteLine("12. Edit Scoreboard");
                 Console.WriteLine("15. To Quit");
@@ -218,12 +349,12 @@ namespace CricketTorunment
                 switch (choice)
                 {
                     case 1:
-                        c.AddSports();
+                        if(c.AddSports())
                         Console.WriteLine("Sport added successfully!");
                         break;
 
                     case 2:
-                        c.AddTournment();
+                        if(c.AddTournment())
                         Console.WriteLine("Tournament added successfully!");
                         break;
 
@@ -231,7 +362,24 @@ namespace CricketTorunment
                         if (c.RemoveSport())
                         { Console.WriteLine("Sport removed successfully!"); }
                         break;
+                    case 4:
+                        if (c.AddTeam())
+                            Console.WriteLine("Team added successfully!");
+                        break;
+                    case 5:
+                        if (c.RemoveTeam())
+                            Console.WriteLine("Team removed successfully!");
+                        break;
 
+
+                    case 6:
+                        if (c.AddPlayer())
+                            Console.WriteLine("Player added successfully!");
+                        break;
+                    case 7:
+                        if(c.RemovePlayer())
+                        { Console.WriteLine("Player removed successfully!"); }
+                        break;
 
                     case 9:
                         c.ViewSports();
